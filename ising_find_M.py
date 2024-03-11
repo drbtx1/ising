@@ -21,44 +21,52 @@ sy = np.array([[0,-1j],[1j,0]])
 
 
 J = 1.0
-
-
+maxh = 0.1
+steps = 100
 N = 6
 periodic = False
 
-site = 1
-
+#site = 1
+eV = 1  #eigenvector to find M for (average sz across all sites in chain)
 
 h_per_J = []
-avgExpValueAtSite = []
-
 
 #build list of operators to find expectation value of nth site
 #nth element in each list holds tensor product of sigma operator at nth site
 #and all other sites holding identity operator
 #x_operator = []
 #y_operator = []
-operator = []
+operator_list = []
+avgExpValue = []
+
 
 for site in range(0,N):
     #x_operator.append(expectationOperator(site,N,sx))
     #y_operator.append(expectationOperator(site,N,sy))
-    operator.append(expectationOperator(site,N,sz))
+    operator_list.append(expectationOperator(site,N,sz))
  
-maxh = 100   
-for h in range(0,maxh): 
-    #hold expectation values at nth site 
-    exp = []    
-    eigenvalues, eigenvectors = findHamiltonian(N,J,h/maxh,periodic)
-    exp = findExpectationValues(N, site,operator, eigenvectors)
-    avg = sum(exp)/N   
-    h_per_J.append((h/maxh)/J)
-    avgExpValueAtSite.append(avg)
-    
-plt.plot(h_per_J, avgExpValueAtSite)
-plt.show()    
-
-
-
-    
    
+for step in range(steps): 
+    #hold expectation values at nth site 
+    expectation_at_site = [] 
+    h = maxh*step/steps
+    eigenvalues, eigenvectors = findHamiltonian(N,J,h,periodic)
+    for site in range(N):
+        expectation_at_site.append(findExpectationValue(operator_list[site], eigenvectors[eV]))
+    avg = sum(expectation_at_site)/N   
+    #print(avg)
+    h_per_J.append((h)/J)
+    avgExpValue.append(avg)  #average across N sites, all with same eigenvector
+title = "N = " +str(N)+" , eigenvector = " + str(eV) + ", periodic = " + str(periodic)
+plt.xlabel("h/J")
+plt.ylabel("M (spin averaged over all sites)")
+plt.title(title)     
+plt.plot(h_per_J, avgExpValue)
+plt.show()
+
+   
+
+
+
+
+
