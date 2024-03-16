@@ -60,31 +60,37 @@ def build_h(N, periodic):
             product = np.kron(product, operators[index])
         tensor_sum_h = tensor_sum_h + product    
     return tensor_sum_h 
-
-def build_g(N,periodic,nonHermitianTerms):
-    #perturbed sites 
-    #create list of operators, set all to identity, change terms that should be
-    #non-Hermitian perturbations, then find kronecker product 
+#Takes a dictionary of sites and perturbations, call find_perturbation to 
+#find sum of kronecker product of each perturbed site 
+def build_g(N,periodic,nonHermitianTerms):   
+    
+    tensor_sum_g = 0
+    
+    for site in nonHermitianTerms:
+        tensor_sum_g = find_perturbation(N,site,nonHermitianTerms[site])         
+    
+    return tensor_sum_g    
+    
+    
+def find_perturbation(N,site, nonHermitianTerm):
+#create list of operators, set all to identity, change term that should be
+#non-Hermitian perturbation, then return kronecker product     
     operators = []
     for index in range(0,N): 
         operators.append(I)
-    for site in nonHermitianTerms:
-        operators[site] = nonHermitianTerms[site]
-    #print(operators)    
+    operators[site] = nonHermitianTerm
     product = operators[0]
     for index in range(1,N):
-        product = np.kron(product, operators[index])
-    tensor_sum_g = product 
+        product = np.kron(product, operators[index]) 
     #print(product)
-    return tensor_sum_g    
-    #print(nonHermitianTerms)
-    
-            
+    return product    
+                
 #takes number of sites N, energy scaling J and h, and boolean periodic (boundary conditions)
 #return lists of eigenvalues and eigenfunctions for corresponding Hamiltonian 
 def findHamiltonian(N,J,h, periodic):
    
-
+    tensor_sum_J = build_J(N, periodic)
+    tensor_sum_h = build_h(N, periodic)
     H = J*tensor_sum_J + h*tensor_sum_h  
     #print(H)
 
@@ -100,7 +106,7 @@ def findPerturbedHamiltonian(N,J,h,g, periodic, nonHermitianTerms ):
     tensor_sum_h = build_h(N,periodic)
     
     H = J*tensor_sum_J + h*tensor_sum_h + g*tensor_sum_g 
-    
+    #print(H)   
 
     eigenvalues, eigenvectors = np.linalg.eig(H)
     #print(g*tensor_sum_g)        
@@ -129,17 +135,18 @@ def expectationOperator(n,N, pauli):      #N sites, nth location
 
 #expects a list of tensor products (give expectation values at each site), and a list of eigenvectors  
 #returns a list of expectation values (corresponding to each eigenvector) for that site
-def findExpectationValues(N,site,pauliOperatorProduct, eigenvectors):
+def findExpectationValue(pauliOperatorProduct, eigenvector):
     
-    ExpValAtSite = []
+    """ExpValAtSite = []
     #print("site = " + str(site))
            
-    for v in range(0,len(eigenvectors)):           
-        x = np.matmul(np.matmul(eigenvectors[v].conj().T,pauliOperatorProduct[site]), eigenvectors[v])
-        #print(x)
-        ExpValAtSite.append(x)
+    #for v in range(0,len(eigenvectors)):           
+     x = np.matmul(np.matmul(eigenvectors[v].conj().T,pauliOperatorProduct[site]), eigenvectors[v])
+     #print(x)
+     #   ExpValAtSite.append(x)
             
-    return ExpValAtSite        
+    return ExpValAtSite   """
+    return np.matmul(np.matmul(eigenvector.conj().T,pauliOperatorProduct), eigenvector)     
             
                     
         
