@@ -20,17 +20,18 @@ sx = np.array([[0,1],[1,0]])
 sy = np.array([[0,-1j],[1j,0]])
 
 
-J = 1.0
-h = 0.1
-g = 0.01
+J = 1
+h = 0.0
+g = 0.6
 
 N = 5
 periodic = False
 
 #dictionary hold site of perturbation as key and perturbing operator as value
-nonHermitianTerms = {1:splus, 2:sminus}
+nonHermitianTerms = {0:splus, 2:sminus}
 
 eigenvalues, eigenvectors = findPerturbedHamiltonian(N,J,h,g, periodic, nonHermitianTerms)
 
+print(eigenvectors)
 print(eigenvalues)
 
