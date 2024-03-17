@@ -18,6 +18,7 @@ sminus = (sx - 1j*sy)/2
 #takes number of sites N and boolean periodic, returns sum of tensor products 
 #describing nearest neighbor interactions
 def build_J(N,periodic):
+    J_operator = sx
     tensor_sum_J = 0
     #cross-site interactions
     for dim in range(N):
@@ -25,14 +26,14 @@ def build_J(N,periodic):
         operators = []
         for index in range(0,N): 
             operators.append(I)  #set all to identity and adjust appropriates sits below
-     #for each iteration of loop, except last one, set that site and the next one to sz         
+     #for each iteration of loop, except last one, set that site and the next one to J_operator         
         if dim != N-1:           
-            operators[dim] = sz
-            operators[dim+1] = sz
-    #only set last site and the next (first) one to sz if the periodic bc are needed        
+            operators[dim] = J_operator
+            operators[dim+1] = J_operator
+    #only set last site and the next (first) one to  if the periodic bc are needed        
         if dim == N-1 and periodic == True:
-            operators[dim] = sz
-            operators[0] = sz
+            operators[dim] = J_operator
+            operators[0] = J_operator
             
         #create tensor product of operators     
         product = operators[0]
@@ -45,24 +46,46 @@ def build_J(N,periodic):
     return tensor_sum_J        
             
 #takes number of sites N and boolean periodic, returns sum of tensor products 
-#describing localized term in x directions at each site
+#describing localized term in  transverse direction at each site
 def build_h(N, periodic):
     #intra-site   
+    h_operator = sz
     tensor_sum_h = 0
     for dim in range(N):
         #create list of operators
         operators = []
         for index in range(0,N): 
             operators.append(I)
-        operators[dim] = sx  
+        operators[dim] = h_operator  
         product = operators[0]
         for index in range(1,N):
             product = np.kron(product, operators[index])
         tensor_sum_h = tensor_sum_h + product    
     return tensor_sum_h 
+
+
+def build_g_single_tensor(N,periodic,nonHermitianTerms):
+    #perturbed sites 
+    #create list of operators, set all to identity, change terms that should be
+    #non-Hermitian perturbations, then find kronecker product 
+    operators = []
+    for index in range(0,N): 
+        operators.append(I)
+    for site in nonHermitianTerms:
+        operators[site] = nonHermitianTerms[site]
+    #print(operators)    
+    product = operators[0]
+    for index in range(1,N):
+        product = np.kron(product, operators[index])
+    tensor_sum_g = product 
+    #print(product)
+    return tensor_sum_g    
+    #print(nonHermitianTerms)
+    
+    
 #Takes a dictionary of sites and perturbations, call find_perturbation to 
 #find sum of kronecker product of each perturbed site 
-def build_g(N,periodic,nonHermitianTerms):   
+def build_g_multiple_tensor(N,periodic,nonHermitianTerms):   
     
     tensor_sum_g = 0
     
@@ -101,7 +124,7 @@ def findHamiltonian(N,J,h, periodic):
 
 
 def findPerturbedHamiltonian(N,J,h,g, periodic, nonHermitianTerms ):
-    tensor_sum_g = build_g(N,periodic,nonHermitianTerms)    
+    tensor_sum_g = build_g_single_tensor(N,periodic,nonHermitianTerms)    
     tensor_sum_J = build_J(N,periodic)
     tensor_sum_h = build_h(N,periodic)
     
