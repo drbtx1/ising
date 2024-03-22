@@ -6,6 +6,8 @@ Created on Wed Feb 28 10:12:29 2024
 """
 
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 I = np.identity(2)
 sz = np.array([[1,0],[0,-1]])
@@ -17,8 +19,8 @@ sminus = (sx - 1j*sy)/2
 
 #takes number of sites N and boolean periodic, returns sum of tensor products 
 #describing nearest neighbor interactions
-def build_J(N,periodic):
-    J_operator = sx
+def build_J(N,periodic, J_operator = sz):
+    #J_operator = sx
     tensor_sum_J = 0
     #cross-site interactions
     for dim in range(N):
@@ -47,9 +49,9 @@ def build_J(N,periodic):
             
 #takes number of sites N and boolean periodic, returns sum of tensor products 
 #describing localized term in  transverse direction at each site
-def build_h(N, periodic):
+def build_h(N, periodic, h_operator = sx):
     #intra-site   
-    h_operator = sz
+    #h_operator = sx
     tensor_sum_h = 0
     for dim in range(N):
         #create list of operators
@@ -170,6 +172,66 @@ def findExpectationValue(pauliOperatorProduct, eigenvector):
             
     return ExpValAtSite   """
     return np.matmul(np.matmul(eigenvector.conj().T,pauliOperatorProduct), eigenvector)     
+
+
+def findAndSaveMagnetization(N,periodic,eV,J,maxh,steps):
+    h_per_J = []
+
+    #build list of operators to find expectation value of nth site
+    #nth element in each list holds tensor product of sigma operator at nth site
+    #and all other sites holding identity operator
+    #x_operator = []
+    #y_operator = []
+    operator_list = []
+    avgExpValue = []
+    realPart = []
+    imagPart = []
+
+
+    for site in range(0,N):
+        #x_operator.append(expectationOperator(site,N,sx))
+        #y_operator.append(expectationOperator(site,N,sy))
+        operator_list.append(expectationOperator(site,N,sz))
+     
+       
+    for step in range(steps): 
+        #hold expectation values at nth site 
+        expectation_at_site = [] 
+        h = maxh*step/steps
+        eigenvalues, eigenvectors = findHamiltonian(N,J,h,periodic)
+        for site in range(N):
+            expectation_at_site.append(findExpectationValue(operator_list[site], eigenvectors[eV]))
+        avg = sum(expectation_at_site)/N   
+        #print(avg)
+        h_per_J.append((h)/J)
+        avgExpValue.append(avg)  #average across N sites, all with same eigenvector
+        realPart.append(avg.real)
+        imagPart.append(avg.imag)
+        
+        
+        
+    #data = avgExpValue    
+    title = "N = " +str(N)+" , eigenvector = " + str(eV) + ", periodic = " + str(periodic)
+
+    filetype = '.csv'
+    dest = 'C:/Users/dabuch/Ising Data/Magnetization/Periodic/N' + str(N) + '/' + title + filetype
+
+    data = {"h/J": h_per_J, "Expectation Value averaged over all sites": avgExpValue}
+    df = pd.DataFrame(data)
+    df.to_csv(dest)
+    
+    plt.xlabel("h/J")
+    plt.ylabel("M (spin averaged over all sites)")
+    plt.title(title)   
+    plt.legend(["Real","Imaginary"])
+    plt.plot(h_per_J, realPart)
+    plt.plot(h_per_J, imagPart)
+    image_filetype = '.png'
+    dest = 'C:/Users/dabuch/Ising Data/Magnetization/Periodic/N' + str(N) + '/' + title + image_filetype
+    plt.savefig(dest)
+    plt.show()
+
+    
             
                     
         
