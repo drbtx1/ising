@@ -33,7 +33,7 @@ def sortEigenvectors(newList, oldList):
         for eigenvector in range(counter, counter + element):
             bestfit = eigenvector
             print("best = " + str(bestfit))
-            bestfitInnerProduct = np.inner(oldListT[eigenvector], newListT[bestfit])
+            bestfitInnerProduct = np.inner(oldListT[eigenvector], newListT[eigenvector])
             #could do a swap in newListT instead of appending to another list to avoid double checking
             for eigenvectortocompare in range(counter, counter + element):
                 tempinner = np.inner(oldListT[eigenvector], newListT[eigenvectortocompare])
@@ -73,10 +73,10 @@ def columntorow(A):
         
 
 
-newList = [[1,0,0]]
-oldList = [[1.01,0,0]]
+#newList = [[1,0,0]]
+#oldList = [[1.01,0,0]]
 
-print(sortEigenvectors(newList,oldList))
+#print(sortEigenvectors(newList,oldList))
     
     
     

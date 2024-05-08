@@ -8,6 +8,7 @@ Created on Wed Feb 28 10:12:29 2024
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from sortev import *
 
 I = np.identity(2)
 sz = np.array([[1,0],[0,-1]])
@@ -115,6 +116,7 @@ def findHamiltonian(N,J,h, periodic,longitudinal_field,transverse_field):
     tensor_sum_h = build_h(N, periodic, transverse_field)
     H = J*tensor_sum_J + h*tensor_sum_h  
     eigenvalues, eigenvectors = np.linalg.eig(H)
+    #eigenvectors = np.transpose(eigenvectors)
     return eigenvalues, eigenvectors
 
 
@@ -150,23 +152,21 @@ def expectationOperator(n,N, pauli):      #N sites, nth location
 #expects a list of tensor products (give expectation values at each site), and a list of eigenvectors  
 #returns a list of expectation values (corresponding to each eigenvector) for that site
 def findExpectationValue(pauliOperatorProduct, eigenvector):
-    return np.matmul(np.matmul(eigenvector.conj().T,pauliOperatorProduct), eigenvector)     
+    #return np.matmul(np.matmul(eigenvector.conj().T,pauliOperatorProduct), eigenvector)
+    return np.matmul(eigenvector.conj().T,np.matmul(pauliOperatorProduct, eigenvector))     
+
 
 
 def findAndSaveMagnetization(N,periodic,eV,J,maxh,steps,longitudinal_field, transverse_field, direction_of_M):
     h_per_J = []
-
-    #build list of operators to find expectation value of nth site
-    #nth element in each list holds tensor product of sigma operator at nth site
-    #and all other sites holding identity operator
-    #x_operator = []
-    #y_operator = []
     operator_list = []
     avgExpValue = []
     realPart = []
     imagPart = []
 
-
+#build list of operators to find expectation value of nth site
+#nth element in each list holds tensor product of sigma operator at nth site
+#and all other sites holding identity operator
     for site in range(0,N):
         operator_list.append(expectationOperator(site,N,direction_of_M))
      
@@ -175,38 +175,50 @@ def findAndSaveMagnetization(N,periodic,eV,J,maxh,steps,longitudinal_field, tran
         #hold expectation values at nth site 
         expectation_at_site = [] 
         h = maxh*step/steps
+        #print(h)
         eigenvalues, eigenvectors = findHamiltonian(N,J,h,periodic,longitudinal_field, transverse_field)
+        #assure sorted in decreasing order
+        idx = eigenvalues.argsort()[::-1]   
+        eigenvalues = eigenvalues[idx]
+        eigenvectors = eigenvectors[:,idx]
+        if step != 0:
+            eigenvectors = sortEigenvectors(eigenvectors,last)
+        last = eigenvectors    
+        #print(eigenvalues[eV])
         for site in range(N):
-            expectation_at_site.append(findExpectationValue(operator_list[site], eigenvectors[eV]))
-        avg = sum(expectation_at_site)/N   
+            expectation_at_site.append(findExpectationValue(operator_list[site], eigenvectors[:,eV]))
+            #print(findExpectationValue(operator_list[site], eigenvectors[:,eV]))
+        avg = sum(expectation_at_site)/len(expectation_at_site)   
         #print(avg)
-        h_per_J.append((h)/J)
+        h_per_J.append(h/J)
         avgExpValue.append(avg)  #average across N sites, all with same eigenvector
-        realPart.append(avg.real)
-        imagPart.append(avg.imag)
+        #realPart.append(avg.real)
+        #print(avg.real)
+        #imagPart.append(avg.imag)
+        #print(avg.imag)
         
         
         
     #data = avgExpValue    
-    title = "N = " +str(N)+" , eigenvector = " + str(eV) + ", periodic = " + str(periodic)
-
-    '''filetype = '.csv'
-    dest = 'C:/Users/dabuch/Ising Data/Magnetization/Periodic/N' + str(N) + '/' + title + filetype
+    title = "N=" +str(N)+",eigenvector = " + str(eV) + ", periodic =" + str(periodic)
+    filetype = '.csv'
+    dest = 'C:/Users/dabuch/Ising Data/Magnetization/PeriodicTrue/JxhzMx/N' + str(N) + '/' + title + filetype
 
     data = {"h/J": h_per_J, "Expectation Value averaged over all sites": avgExpValue}
     df = pd.DataFrame(data)
-    df.to_csv(dest)'''
+    df.to_csv(dest)
     
-    #plt.xlabel("h/J")
+    plt.xlabel("h/J")
     plt.ylabel("M (spin averaged over all sites)")
     plt.title(title)   
+    plt.plot(h_per_J, avgExpValue)
     #plt.legend(["Real","Imaginary"])
-    plt.plot(h_per_J, realPart)
+    #plt.plot(h_per_J, realPart)
     #plt.plot(h_per_J, imagPart)
-    '''image_filetype = '.png'
-    dest = 'C:/Users/dabuch/Ising Data/Magnetization/Periodic/N' + str(N) + '/' + title + image_filetype
+    image_filetype = '.png'
+    dest = 'C:/Users/dabuch/Ising Data/Magnetization/PeriodicTrue/JxhzMx/N' + str(N) + '/' + title + image_filetype
     plt.savefig(dest)
-    plt.show()'''
+    plt.show()
 
     
             

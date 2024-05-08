@@ -23,14 +23,14 @@ sy = np.array([[0,-1j],[1j,0]])
 
 longitudinal_field = sz
 transverse_field = sx
-direction_of_M = sz
+direction_of_M = sx
 
 
-J = 1.0
-maxh = 10
-steps = 1000
+J = 1
+maxh = 2
+steps = 50
 #N = 3
-periodic = False
+periodic = True
 
 #site = 1
 #eV = 0  #eigenvector to find M for (average sz across all sites in chain)
@@ -41,11 +41,13 @@ periodic = False
 
 
 
-for N in range(4,5):
-    for eV in range(0, 1): #2**N):
+for N in range(3,4):
+    for eV in range(0,2**N): 
         findAndSaveMagnetization(N,periodic,eV,J,maxh,steps,longitudinal_field,transverse_field, direction_of_M )
-
-   
+'''
+eigenvalues, eigenvectors = findHamiltonian(3,False,1,0,sz,sx)
+print(eigenvectors)
+'''  
 
 
 
