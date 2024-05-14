@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sortev import *
+from sortcolumns import *
 
 I = np.identity(2)
 sz = np.array([[1,0],[0,-1]])
@@ -170,7 +171,7 @@ def findAndSaveMagnetization(N,periodic,eV,J,maxh,steps,longitudinal_field, tran
     for site in range(0,N):
         operator_list.append(expectationOperator(site,N,direction_of_M))
      
-       
+    last = []   
     for step in range(steps): 
         #hold expectation values at nth site 
         expectation_at_site = [] 
@@ -181,12 +182,15 @@ def findAndSaveMagnetization(N,periodic,eV,J,maxh,steps,longitudinal_field, tran
         idx = eigenvalues.argsort()[::-1]   
         eigenvalues = eigenvalues[idx]
         eigenvectors = eigenvectors[:,idx]
-        if step != 0:
-            eigenvectors = sortEigenvectors(eigenvectors,last)
-        last = eigenvectors    
-        #print(eigenvalues[eV])
+        #if step != 0:
+        #    eigenvectors = sortEigenvectorsasarray(eigenvectors,last)
+        #print(eigenvectors)    
+        last = eigenvectors 
+        #print(eigenvectors[:,eV])
+        #print(eigenvalues[:,eV])
         for site in range(N):
             expectation_at_site.append(findExpectationValue(operator_list[site], eigenvectors[:,eV]))
+            #expectation_at_site.append(findExpectationValue(operator_list[site], eigenvectors[eV]))
             #print(findExpectationValue(operator_list[site], eigenvectors[:,eV]))
         avg = sum(expectation_at_site)/len(expectation_at_site)   
         #print(avg)
@@ -201,23 +205,24 @@ def findAndSaveMagnetization(N,periodic,eV,J,maxh,steps,longitudinal_field, tran
         
     #data = avgExpValue    
     title = "N=" +str(N)+",eigenvector = " + str(eV) + ", periodic =" + str(periodic)
-    filetype = '.csv'
+    '''filetype = '.csv'
     dest = 'C:/Users/dabuch/Ising Data/Magnetization/PeriodicTrue/JxhzMx/N' + str(N) + '/' + title + filetype
-
+    
     data = {"h/J": h_per_J, "Expectation Value averaged over all sites": avgExpValue}
     df = pd.DataFrame(data)
-    df.to_csv(dest)
+    df.to_csv(dest)'''
     
     plt.xlabel("h/J")
     plt.ylabel("M (spin averaged over all sites)")
     plt.title(title)   
     plt.plot(h_per_J, avgExpValue)
     #plt.legend(["Real","Imaginary"])
+    #
     #plt.plot(h_per_J, realPart)
     #plt.plot(h_per_J, imagPart)
-    image_filetype = '.png'
+    '''image_filetype = '.png'
     dest = 'C:/Users/dabuch/Ising Data/Magnetization/PeriodicTrue/JxhzMx/N' + str(N) + '/' + title + image_filetype
-    plt.savefig(dest)
+    plt.savefig(dest)'''
     plt.show()
 
     
