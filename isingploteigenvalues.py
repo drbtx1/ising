@@ -12,6 +12,7 @@ Created on Fri May 10 09:51:49 2024
 #without periodic boundary conditions
 from Ising_functions import *
 import numpy as np
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 #import csv
 import pandas as pd
@@ -29,7 +30,7 @@ direction_of_M = sx
 J = 1
 maxh = 3
 steps = 200
-N = 7
+N = 3
 periodic = False
 
 h_per_J = []
@@ -53,9 +54,13 @@ def geteigenvalues_vs_h(N,periodic,eV,J,maxh,steps,longitudinal_field, transvers
 #print(geteigenvalues_vs_h(3,periodic,0,J,maxh,steps,longitudinal_field, transverse_field))
 for vec in range(0,2**N):
     geteigenvalues_vs_h(N,periodic,vec,J,maxh,steps,longitudinal_field, transverse_field)
+mpl.rcParams['text.usetex'] = True
+mpl.use('Agg')
+dest = 'C:/Users/dbtx/.spyder-py3/eigs.png'
 
-plt.title("Plot of eigenvalue vs transverse field, " + str(N) + " spins")    
-plt.show()    
+plt.title("Plot of eigenvalue vs transverse field, " + str(N) + " spins")  
+plt.savefig(dest)  
+#plt.show()    
 
         
         

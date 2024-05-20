@@ -7,6 +7,7 @@ Created on Sat May 11 15:13:01 2024
 
 from Ising_functions import *
 import numpy as np
+import matplotlib as mpl
 from matplotlib import pyplot as plt
 #import csv
 import pandas as pd
@@ -32,15 +33,15 @@ maxh = 0.0000000000000000000001
 steps = 2
 N = 3
 periodic = False
+h = 0.00001
 
-
-H = J*build_J(N,periodic, longitudinal_field) + h*build_h(N, periodic, transverse_field)
-#print(H)
+H = -J*build_J(N,periodic, longitudinal_field) - h*build_h(N, periodic, transverse_field)
+print(H)
 #print(Matrix(H).eigenvects())
-lamda = symbols('lamda')
+'''lamda = symbols('lamda')
 #p = Array(H).charpoly(lamda)
-#factor(p.as_expr())
-for step in range(steps):
+#factor(p.as_expr())'''
+'''for step in range(steps):
     h = step*maxh/steps
     print("h = " + str(h))
     eigenvalues, eigenvectors = findHamiltonian(N,J,h, periodic,longitudinal_field,transverse_field)
@@ -48,8 +49,12 @@ for step in range(steps):
     eigenvalues = eigenvalues[idx]
     eigenvectors = eigenvectors[:,idx]
     print(eigenvectors)
-    print(eigenvalues)
+    print(eigenvalues)'''
     
-#eigenvalues, eigenvectors = findHamiltonian(N,J,h, periodic,longitudinal_field,transverse_field)
-#print(eigenvectors)   
+eigenvalues, eigenvectors = findHamiltonian(N,J,h, periodic,longitudinal_field,transverse_field)
+idx = eigenvalues.argsort()[::-1]   
+eigenvalues = eigenvalues[idx]
+eigenvectors = eigenvectors[:,idx]
+print(eigenvalues)
+print(eigenvectors)
 #print([list(tup[2][0]) for tup in H.eigenvects()])

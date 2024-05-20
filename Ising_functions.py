@@ -115,7 +115,7 @@ def find_perturbation(N,site, nonHermitianTerm):
 def findHamiltonian(N,J,h, periodic,longitudinal_field,transverse_field):   
     tensor_sum_J = build_J(N, periodic,longitudinal_field)
     tensor_sum_h = build_h(N, periodic, transverse_field)
-    H = J*tensor_sum_J + h*tensor_sum_h  
+    H = -J*tensor_sum_J - h*tensor_sum_h  
     eigenvalues, eigenvectors = np.linalg.eig(H)
     #eigenvectors = np.transpose(eigenvectors)
     return eigenvalues, eigenvectors

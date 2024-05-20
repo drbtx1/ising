@@ -27,8 +27,8 @@ direction_of_M = sx
 
 
 J = 1
-maxh = 0.0001
-steps = 2
+maxh = 2
+steps = 200
 N = 3
 periodic = False
 
@@ -38,18 +38,17 @@ periodic = False
 
 
 
-print(findHamiltonian(N,J,maxh, periodic,longitudinal_field,transverse_field))
-
-####PASS H TO FUNCTIONS
+#print(findHamiltonian(N,J,maxh, periodic,longitudinal_field,transverse_field))
 
 
-'''for N in range(3,4):
+
+for N in range(3,4):
     #for step in steps:
         
     for eV in range(0,2**N):
         findAndSaveMagnetization(N,periodic,eV,J,maxh,steps,longitudinal_field,transverse_field, direction_of_M )
 
-'''   
+   
 
 
 
