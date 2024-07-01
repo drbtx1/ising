@@ -7,9 +7,19 @@ Created on Wed Feb 28 10:12:29 2024
 
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-from sortev import *
-from sortcolumns import *
+#from sortev import *
+#from sortcolumns import *
+from sortvecs import *
+
+#Following lines make plots look a little more Latex-like
+#mpl.rcParams['mathtext.fontstyle'] = 'cm' 
+mpl.rcParams['font.family'] = 'serif' # or 'sans-serif' or 'monospace'
+mpl.rcParams['font.serif'] = 'cmr10'
+mpl.rcParams['font.sans-serif'] = 'cmss10'
+mpl.rcParams['font.monospace'] = 'cmtt10'
+mpl.rcParams["axes.formatter.use_mathtext"] = True # to fix the minus signs
 
 I = np.identity(2)
 sz = np.array([[1,0],[0,-1]])
@@ -75,8 +85,13 @@ def build_g_single_tensor(N,periodic,nonHermitianTerms):
     operators = []
     for index in range(0,N): 
         operators.append(I)
+    #print(nonHermitianTerms)     
     for site in nonHermitianTerms:
+    #    print(str(k) + str(v))
         operators[site] = nonHermitianTerms[site]
+    '''for key, value in nonHermitianTerms.items():
+        #print(key)
+        operators[key] = value'''
     #print(operators)    
     product = operators[0]
     for index in range(1,N):
@@ -122,10 +137,10 @@ def findHamiltonian(N,J,h, periodic,longitudinal_field,transverse_field):
 
 
 
-def findPerturbedHamiltonian(N,J,h,g, periodic, nonHermitianTerms ):
+def findPerturbedHamiltonian(N,J,h,g, periodic, longitudinal_field, transverse_field, nonHermitianTerms, ):
     tensor_sum_g = build_g_single_tensor(N,periodic,nonHermitianTerms)    
-    tensor_sum_J = build_J(N,periodic)
-    tensor_sum_h = build_h(N,periodic)    
+    tensor_sum_J = build_J(N,periodic, longitudinal_field)
+    tensor_sum_h = build_h(N,periodic, transverse_field)    
     H = J*tensor_sum_J + h*tensor_sum_h + g*tensor_sum_g     
     eigenvalues, eigenvectors = np.linalg.eig(H)
     return eigenvalues, eigenvectors
@@ -158,12 +173,12 @@ def findExpectationValue(pauliOperatorProduct, eigenvector):
 
 
 
-def findAndSaveMagnetization(N,periodic,eV,J,maxh,steps,longitudinal_field, transverse_field, direction_of_M):
+def findAndSaveMagnetization(N,periodic,eV,J,maxh,starth,steps,longitudinal_field, transverse_field, direction_of_M):
     h_per_J = []
     operator_list = []
     avgExpValue = []
-    realPart = []
-    imagPart = []
+    #realPart = []
+    #imagPart = []
 
 #build list of operators to find expectation value of nth site
 #nth element in each list holds tensor product of sigma operator at nth site
@@ -175,14 +190,15 @@ def findAndSaveMagnetization(N,periodic,eV,J,maxh,steps,longitudinal_field, tran
     for step in range(steps): 
         #hold expectation values at nth site 
         expectation_at_site = [] 
-        h = maxh*step/steps
+        h = starth + (maxh-starth)*step/steps
         #print(h)
         eigenvalues, eigenvectors = findHamiltonian(N,J,h,periodic,longitudinal_field, transverse_field)
         #assure sorted in decreasing order
         idx = eigenvalues.argsort()[::-1]   
         eigenvalues = eigenvalues[idx]
         eigenvectors = eigenvectors[:,idx]
-        #if step != 0:
+        #startstep = 5
+        #if step >= startstep:
         #    eigenvectors = sortEigenvectorsasarray(eigenvectors,last)
         #print(eigenvectors)    
         last = eigenvectors 
@@ -211,20 +227,21 @@ def findAndSaveMagnetization(N,periodic,eV,J,maxh,steps,longitudinal_field, tran
     data = {"h/J": h_per_J, "Expectation Value averaged over all sites": avgExpValue}
     df = pd.DataFrame(data)
     df.to_csv(dest)'''
-    
+    #mpl.rcParams['text.usetex'] = True
     plt.xlabel("h/J")
-    plt.ylabel("M (spin averaged over all sites)")
-    plt.title(title)   
+    plt.ylabel("M")#" (averaged over all sites)")
+    #plt.title(title)   
     plt.plot(h_per_J, avgExpValue)
     #plt.legend(["Real","Imaginary"])
     #
     #plt.plot(h_per_J, realPart)
     #plt.plot(h_per_J, imagPart)
-    '''image_filetype = '.png'
-    dest = 'C:/Users/dabuch/Ising Data/Magnetization/PeriodicTrue/JxhzMx/N' + str(N) + '/' + title + image_filetype
-    plt.savefig(dest)'''
-    plt.show()
-
+    #image_filetype = '.png'
+    #dest = 'C:/Users/dbtx/.spyder-py3/' + title +  image_filetype
+    #plt.savefig(dest)
+    #plt.show()
+    
+    
     
             
                     
