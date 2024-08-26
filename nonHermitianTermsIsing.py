@@ -12,6 +12,7 @@ Created on Wed Mar  6 15:31:16 2024
 #without periodic boundary conditions
 from Ising_functions import *
 import numpy as np
+import scipy as sp
 from matplotlib import pyplot as plt
 
 I = np.identity(2)
@@ -20,22 +21,36 @@ sx = np.array([[0,1],[1,0]])
 sy = np.array([[0,-1j],[1j,0]])
 
 
-J = 1
-h = 0.3
-g = 0.2
+J = 1.0
+h = 0.0
+g = 0.5
+limit = 10e-4
+
 longitudinal_field = sx
 transverse_field = sz
-N = 5
+N = 7
 periodic = False
 
 #dictionary hold site of perturbation as key and perturbing operator as value
-nonHermitianTerms = {0:splus, 2:sminus}
+nonHermitianTerms = {2:splus, 5 :sminus}
 #for k, v in nonHermitianTerms.items():
 #    print(type(k))
 #    print(type(v))
-eigenvalues, eigenvectors = findPerturbedHamiltonian(N,J,h,g, periodic, longitudinal_field, transverse_field,
-                                                     nonHermitianTerms)
+#eigenvalues, eigenvectors = findPerturbedHamiltonian(N,J,h,g, periodic, 
+                                                     #longitudinal_field, transverse_field,
+                                                     #nonHermitianTerms)
+    
+print(findPerturbedHamiltonian(N,J,h,g, periodic, 
+                                                     longitudinal_field, transverse_field,
+                                                     nonHermitianTerms))    
 
+#eigenvalues, eigenvectors = findHamiltonian(N,J,h, periodic,longitudinal_field,
+#                                            transverse_field)    
 #print(eigenvectors)
+
+'''for element in eigenvalues:
+    if np.imag(element) < limit:
+        element = np.real(element)
+    print(element)    ''' 
 print(eigenvalues)
 
