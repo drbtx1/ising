@@ -24,33 +24,33 @@ sy = np.array([[0,-1j],[1j,0]])
 J = 1.0
 h = 0.0
 g = 0.5
-limit = 10e-4
+limit = 10e-7
 
 longitudinal_field = sx
 transverse_field = sz
-N = 7
+N = 4
 periodic = False
 
 #dictionary hold site of perturbation as key and perturbing operator as value
-nonHermitianTerms = {2:splus, 5 :sminus}
+nonHermitianTerms = {0:splus, 2 :sminus}
 #for k, v in nonHermitianTerms.items():
 #    print(type(k))
 #    print(type(v))
-#eigenvalues, eigenvectors = findPerturbedHamiltonian(N,J,h,g, periodic, 
-                                                     #longitudinal_field, transverse_field,
-                                                     #nonHermitianTerms)
-    
-print(findPerturbedHamiltonian(N,J,h,g, periodic, 
+eigenvalues, eigenvectors = np.linalg.eig(findPerturbedHamiltonian(N,J,h,g, periodic, 
                                                      longitudinal_field, transverse_field,
-                                                     nonHermitianTerms))    
+                                                     nonHermitianTerms))
+    
+'''print(findPerturbedHamiltonian(N,J,h,g, periodic, 
+                                                     longitudinal_field, transverse_field,
+                                                     nonHermitianTerms))   ''' 
 
-#eigenvalues, eigenvectors = findHamiltonian(N,J,h, periodic,longitudinal_field,
-#                                            transverse_field)    
+'''eigenvalues, eigenvectors = findHamiltonian(N,J,h, periodic,longitudinal_field,
+                                            transverse_field)    '''
 #print(eigenvectors)
 
 '''for element in eigenvalues:
     if np.imag(element) < limit:
         element = np.real(element)
     print(element)    ''' 
-print(eigenvalues)
+#print(eigenvalues)
 
