@@ -103,23 +103,27 @@ def build_g_multiple_tensor(N,periodic,nonHermitianTerms):
         #    tensor_sum_g = find_perturbation(N,site,nonHermitianTerms[site]) 
         #else:
         tensor_sum_g = tensor_sum_g + find_perturbation(N,site,nonHermitianTerms[site])         
-    return tensor_sum_g    
+    return tensor_sum_g  
+
+def build_g_samesite(N,periodic,site):  
+    tensor_sum_g = np.zeros((2**N, 2**N))
+    for site in nonHermitianTerms:
+        #if site == 0:
+        #    tensor_sum_g = find_perturbation(N,site,nonHermitianTerms[site]) 
+        #else:
+        tensor_sum_g = tensor_sum_g + find_perturbation(N,site,nonHermitianTerms[site])         
+    return tensor_sum_g     
     
-def build_g_single_tensor(N,periodic,nonHermitianTerms):
+def build_g_single_tensor(N,periodic,site):   #handle p = q
     #perturbed sites 
     #create list of operators, set all to identity, change terms that should be
     #non-Hermitian perturbations, then find kronecker product 
     operators = []
     for index in range(0,N): 
         operators.append(I)
-    #print(nonHermitianTerms)     
-    for site in nonHermitianTerms:
-    #    print(str(k) + str(v))
-        operators[site] = nonHermitianTerms[site]
-    '''for key, value in nonHermitianTerms.items():
-        #print(key)
-        operators[key] = value'''
-    print(operators)    
+    operators[site] = sx
+    
+    #print(operators)    
     product = operators[0]
     for index in range(1,N):
         product = np.kron(product, operators[index])
@@ -146,7 +150,9 @@ def find_perturbation(N,site, nonHermitianTerm):
 
 def findPerturbedHamiltonian(N,J,h,g, periodic, longitudinal_field,
                              transverse_field, nonHermitianTerms, ):
-    tensor_sum_g = build_g_multiple_tensor(N,periodic,nonHermitianTerms)    
+    tensor_sum_g = build_g_multiple_tensor(N,periodic,nonHermitianTerms)  
+    #tensor_sum_g = build_g_single_tensor(N,periodic,site = 0)
+    
     tensor_sum_J = build_J(N,periodic, longitudinal_field)
     tensor_sum_h = build_h(N,periodic, transverse_field)
     #print(tensor_sum_g)    
@@ -182,7 +188,7 @@ N = 7
 periodic = False
 
 #dictionary hold site of perturbation as key and perturbing operator as value
-nonHermitianTerms = {0:splus, 6:sminus}
+nonHermitianTerms = {0:splus, 0:sminus}
 
 gamma = []
 realPart = []
