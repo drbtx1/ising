@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Feb 13 21:50:42 2025
+Created on Fri Feb 14 14:37:10 2025
 
-@author: dbtx
+@author: dabuch
 """
+
 
 import numpy as np
 import pandas as pd
@@ -20,7 +21,7 @@ from sympy import Matrix, re, im
 #from sympy import eye
 #from sympy import zeros
 #import multiprocessing as mp
-
+import seaborn as sns 
 
 start = time.time()
 
@@ -192,50 +193,39 @@ N = 7
 periodic = False
 
 #dictionary hold site of perturbation as key and perturbing operator as value
-nonHermitianTerms = {0:splus + sminus}
+#nonHermitianTerms = {0:splus + sminus}
 
-gamma = []
-realPart = []
-imagPart = []
-for g in np.arange(0,0.75, 0.01):
-    ham = findPerturbedHamiltonian(N,J,h,g, periodic, 
+#gamma = []
+#realPart = []
+#imagPart = []
+threshold = np.ones((N,N))
+print(threshold)
+
+for p in range(N):
+    for q in range(N):
+        if p==q:
+            nonHermitianTerms = {p: splus + sminus}
+        else:
+            nonHermitianTerms = {p: splus, q: sminus}
+        thresholdfound = False
+        g = 0
+        while g < 0.75 and thresholdfound == False :
+            ham = findPerturbedHamiltonian(N,J,h,g, periodic, 
                                                      longitudinal_field, transverse_field,
                                                      nonHermitianTerms)
+            ev, vecs = np.linalg.eig(ham)
+            print(ev)
+            for e in ev:
+                if im(e) > 10e-4:
+                    threshold[p][q] = g
+                    print(g)
+                    thresholdfound = True
+            g = g + 0.01    
+                
     
     
-    ev, vecs = np.linalg.eig(ham)  
-    for e in ev:
-        realPart.append(re(e))
-        gamma.append(g)    #will have g appended multiple times
-        if im(e) > 10e-4:
-            imagPart.append(im(e))
-        else:
-            imagPart.append(0)    
-            
-    #print(ev)    
-#realPartList = makeList(realPart, N)  
-#imagPartList = makeList(imagPart, N)    
-#gammaList = makeList(gamma, N)  
-gamma_array = np.reshape(gamma, (int(len(gamma)/2**N), 2**N)).T
-realPart_array = np.reshape(realPart, (int(len(realPart)/2**N), 2**N)).T
-imagPart_array = np.reshape(imagPart, (int(len(realPart)/2**N), 2**N)).T
-# creating an empty canvas
-fig = plt.figure()
- 
-# defining the axes with the projection
-# as 3D so as to plot 3D graphs
-ax = plt.axes(projection="3d")
 
-# plotting a 3D line graph with X-coordinate,
-# Y-coordinate and Z-coordinate respectively
-ax.set_xlabel("Gamma")
-ax.set_ylabel("Imaginary part")
-ax.set_zlabel("Real Part")
-ax.set_title("N = " + str(N) + " perturbations: " + str(nonHermitianTerms) )
-
-for i in range(0,2**N):
-    colors = np.where(imagPart_array[i,:] == 0,  'blue', 'red')
-    ax.scatter3D(gamma_array[i,:], imagPart_array[i,:], realPart_array[i,:], marker = ".", c = colors )
+sns.heatmap(threshold)
 plt.show()
 
 
