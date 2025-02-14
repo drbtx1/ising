@@ -105,6 +105,28 @@ def build_g_multiple_tensor(N,periodic,nonHermitianTerms):
         tensor_sum_g = tensor_sum_g + find_perturbation(N,site,nonHermitianTerms[site])         
     return tensor_sum_g    
     
+def build_g_single_tensor(N,periodic,nonHermitianTerms):
+    #perturbed sites 
+    #create list of operators, set all to identity, change terms that should be
+    #non-Hermitian perturbations, then find kronecker product 
+    operators = []
+    for index in range(0,N): 
+        operators.append(I)
+    #print(nonHermitianTerms)     
+    for site in nonHermitianTerms:
+    #    print(str(k) + str(v))
+        operators[site] = nonHermitianTerms[site]
+    '''for key, value in nonHermitianTerms.items():
+        #print(key)
+        operators[key] = value'''
+    print(operators)    
+    product = operators[0]
+    for index in range(1,N):
+        product = np.kron(product, operators[index])
+    tensor_sum_g = product 
+    #print(product)
+    return tensor_sum_g      
+
     
 def find_perturbation(N,site, nonHermitianTerm):
 #create list of operators, set all to identity, change term that should be
@@ -165,7 +187,7 @@ nonHermitianTerms = {0:splus, 6:sminus}
 gamma = []
 realPart = []
 imagPart = []
-for g in np.arange(0.1,0.6, 0.01):
+for g in np.arange(0,0.75, 0.01):
     ham = findPerturbedHamiltonian(N,J,h,g, periodic, 
                                                      longitudinal_field, transverse_field,
                                                      nonHermitianTerms)
@@ -199,9 +221,12 @@ ax = plt.axes(projection="3d")
 ax.set_xlabel("Gamma")
 ax.set_ylabel("Imaginary part")
 ax.set_zlabel("Real Part")
-for i in range(0,5):
-    ax.plot3D(gamma_array[i], imagPart_array[i], realPart_array[i], 'blue')
+ax.set_title("N = " + str(N) + " perturbations: " + str(nonHermitianTerms) )
+
+for i in range(0,2**N):
+    colors = np.where(imagPart_array[i,:] == 0,  'blue', 'red')
+    ax.scatter3D(gamma_array[i,:], imagPart_array[i,:], realPart_array[i,:], marker = ".", c = colors )
 plt.show()
 
 
-print(gamma_array)
+print(gamma_array[0])
