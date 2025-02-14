@@ -160,12 +160,12 @@ N = 7
 periodic = False
 
 #dictionary hold site of perturbation as key and perturbing operator as value
-nonHermitianTerms = {0:splus, 1:sminus}
+nonHermitianTerms = {0:splus, 6:sminus}
 
 gamma = []
 realPart = []
 imagPart = []
-for g in np.arange(0.1,0.6, 0.1):
+for g in np.arange(0.1,0.6, 0.01):
     ham = findPerturbedHamiltonian(N,J,h,g, periodic, 
                                                      longitudinal_field, transverse_field,
                                                      nonHermitianTerms)
@@ -196,11 +196,11 @@ ax = plt.axes(projection="3d")
 
 # plotting a 3D line graph with X-coordinate,
 # Y-coordinate and Z-coordinate respectively
-ax.set_xlabel("Real part")
+ax.set_xlabel("Gamma")
 ax.set_ylabel("Imaginary part")
-ax.set_zlabel("Gamma")
-for i in range(0,1):
-    ax.plot3D(realPart_array[i], imagPart_array[i], gamma_array[i], 'blue')
+ax.set_zlabel("Real Part")
+for i in range(0,5):
+    ax.plot3D(gamma_array[i], imagPart_array[i], realPart_array[i], 'blue')
 plt.show()
 
 
