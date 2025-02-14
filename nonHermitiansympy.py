@@ -11,14 +11,19 @@ import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 #from sortev import *
 #from sortcolumns import *
 #from sortvecs import *
 from scipy.linalg import eig
-from sympy import Matrix
+from sympy import Matrix, re, im
 from sympy.physics.quantum import TensorProduct
 from sympy import eye
 from sympy import zeros
+import multiprocessing as mp
+#from mpl_toolkits import mplot3d
+#print("Number of processors: ", mp.cpu_count())
+#pool = mp.Pool()
 
 #import tensorflow as tf
 
@@ -94,29 +99,7 @@ def build_h(N, periodic, transverse_field):
     return tensor_sum_h 
 
 
-'''def build_g_single_tensor(N,periodic,nonHermitianTerms):
-    #perturbed sites 
-    #create list of operators, set all to identity, change terms that should be
-    #non-Hermitian perturbations, then find kronecker product 
-    operators = []
-    for index in range(0,N): 
-        operators.append(I)
-    #print(nonHermitianTerms)     
-    for site in nonHermitianTerms:
-    #    print(str(k) + str(v))
-        operators[site] = nonHermitianTerms[site]
-    '''   '''for key, value in nonHermitianTerms.items():
-        #print(key)
-        operators[key] = value''' '''
-    print(operators)    
-    product = operators[0]
-    for index in range(1,N):
-        product = np.kron(product, operators[index])
-    tensor_sum_g = product 
-    #print(product)
-    return tensor_sum_g    
-    #print(nonHermitianTerms)'''
-    
+
     
 #Takes a dictionary of sites and perturbations, call find_perturbation to 
 #find sum of kronecker product of each perturbed site 
@@ -153,37 +136,79 @@ def findPerturbedHamiltonian(N,J,h,g, periodic, longitudinal_field,
     tensor_sum_h = build_h(N,periodic, transverse_field)
     #print(tensor_sum_g)    
     H = -J*tensor_sum_J/4 - h*tensor_sum_h/2 + g*tensor_sum_g 
-    #print(H)
-    print(type(H))
-    #print(H.tolist())
-    #M = Matrix(H.tolist())
-    #print(M)
-    #print(M.eigenvals())
-    #print(H)    
-    #eigenvalues, eigenvectors = np.linalg.eig(H)
-    #spM = Matrix(H)
-    #eigenvalues, eigenvectors = eig(H)
-    #return eigenvalues, eigenvectors
     return(H)
 
 
 J = 1.0
 h = 0.0
-g = 0.24999
+#g = 0.2
 #limit = 10e-4
 
 longitudinal_field = sx
 transverse_field = sz
-N = 7
+N = 6
 periodic = False
 
 #dictionary hold site of perturbation as key and perturbing operator as value
-nonHermitianTerms = {0:splus, 2 :sminus}
+nonHermitianTerms = {0:splus, 1:sminus}
 
-ham = findPerturbedHamiltonian(N,J,h,g, periodic, 
+gamma = []
+realPart = []
+imagPart = []
+for g in np.arange(0.1,0.6, 0.05):
+    ham = findPerturbedHamiltonian(N,J,h,g, periodic, 
                                                      longitudinal_field, transverse_field,
                                                      nonHermitianTerms)
-print(ham.eigenvals()) 
+    
+    
+    ev = ham.eigenvals()
+    for e in ev:
+        realPart.append(re(e))
+        gamma.append(g)    #will have g appended multiple times
+        #if im(e) > 10e-8:
+        imagPart.append(im(e))
+            
+    #print(ev)    
+    
+'''plt.plot(realPart,imagPart, linestyle = 'dotted')
+plt.show()
+vecs = ham.eigenvects()'''
+
+'''fig = plt.figure()
+# syntax for 3-D plotting
+ax = plt.axes(projection='3d')
+# syntax for plotting
+ax.plot_surface(imagPart, gamma, realPart, cmap='viridis',\
+                edgecolor='green')
+#ax.set_title('')
+plt.show() '''
+
+fig = plt.figure(figsize=(4,4))
+
+ax = fig.add_subplot(111, projection='3d')
+for i in range(0,1):
+    ax.plot(realPart[:,i], imagPart[:,1],  gamma, marker = '.') 
+ax.set_xlabel("Real")
+ax.set_ylabel("Imaginary")
+ax.set_zlabel("Gamma")
+ax.set_title("N = 6")
+plt.show()
+'''
+fig = plt.figure()
+ 
+# syntax for 3-D projection
+ax = plt.axes(projection ='3d')
+ 
+
+ 
+# plotting
+ax.plot3D(realPart, imagPart, g, 'green')
+ax.set_xlabel("Real")
+ax.set_ylabel("Imaginary")
+ax.set_zlabel("Gamma")
+ax.set_title("N = 6")
+plt.show()'''
+    
 
     
     
