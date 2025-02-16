@@ -201,16 +201,16 @@ periodic = False
 #imagPart = []
 
 
-p = 1
+p = 0
 dg = 0.01
 max = 1 
 min = -1 
 maxIm = np.zeros((int((max-min)/dg),int((max-min)/dg)))
 print(maxIm)
 
-for gplus in np.arange(min,max ,dg):
+for gplus in np.arange(min,max+dg ,dg):
     print(gplus)
-    for gminus in np.arange(min,max , dg):
+    for gminus in np.arange(min,max+dg , dg):
         print(gminus)
         nonHermitianTerms = {p: (gplus + gminus)*sx + 1j*(gplus - gminus)*sy}
         ham = findPerturbedHamiltonian(N,J,h,1, periodic, 
@@ -226,13 +226,16 @@ for gplus in np.arange(min,max ,dg):
                 
     
     
-
-ax = sns.heatmap(maxIm)
+plt.imshow(maxIm,extent = [-1,1,-1,1], origin='lower')
+plt.title("Maximum imaginary part, p = " + str(p))
+#plt.xlim([min,max])
+#plt.ylim([min,max])
+'''ax = sns.heatmap(maxIm)
 ax.invert_yaxis()
 ax.set_yticks(np.arange(min,max,0.1)) 
 #ax1.set_xticks(range(9, 200, 10))
 #ax.set_xticklabels(f'{c:.1f}' for c in np.arange(-1.00, 1.00, 0.1))
-#ax.set_yticklabels(f'{c:.1f}' for c in np.arange(-1.00, 1.00, 0.1))
+#ax.set_yticklabels(f'{c:.1f}' for c in np.arange(-1.00, 1.00, 0.1))'''
 plt.show()
 
 
