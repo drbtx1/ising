@@ -11,7 +11,7 @@ cplus = np.array([[0,0],[1,0]])
 
 periodic = False
 
-n = 3
+n = 5
 Jplus = np.ones(2**n)
 Jminus = np.ones(2**n)
 h = 0.5
@@ -166,7 +166,7 @@ def HOBC25(n):
     H = -1*H + h*hTerm(n,n-1)
     return H
 
-def HPBC25(n):
+"""def HPBC25(n):
     index = n-1
     H = HOBC25(n) - (Jplus[index]*(cpluscMatrixOBC(n,index) - ccplusMatrixOBC(n,index)) 
     + Jminus[index]*(cpluscplusMatrixOBC(n,index) - ccMatrixOBC(n,index)))
@@ -174,7 +174,32 @@ def HPBC25(n):
 def HABC25(n):
     index = n-1
     H = HOBC25(n) + (Jplus[index]*(cpluscMatrixOBC(n,index) - ccplusMatrixOBC(n,index)) 
-    + Jminus[index]*(cpluscplusMatrixOBC(n,index) - ccMatrixOBC(n,index))    
+    + Jminus[index]*(cpluscplusMatrixOBC(n,index) - ccMatrixOBC(n,index)))  """  
+    
+    
+def parityClass(k):
+    weights = fermionWeights(n)
+    sum = 0
+    term = k
+    for index in range(len(weights)):
+        if int(term/(weights[index])) != 0:
+            sum += 1
+        term = term % weights[index]
+        
+    return sum % 2     
+        
+def HPBC25(n):
+    Heven = np.zeros(2**(n-1))
+    Hodd = np.zeros(2**(n-1))
+    
+    
+print(parityClass(6))    
+    
+    
+       
+            
+            
+        
     
 
 
