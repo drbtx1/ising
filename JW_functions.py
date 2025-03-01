@@ -14,7 +14,8 @@ periodic = False
 n = 5
 Jplus = np.ones(2**n)
 Jminus = np.ones(2**n)
-h = 0.5
+J = 1
+h = .25
 
 def fermionWeights(n):
     weights = np.zeros(n, dtype = int)
@@ -125,7 +126,7 @@ def cpluscMatrixOBC(n, j):
     product = operators[0]
     for index in range(1,n):
         product = np.kron(product, operators[index])
-        print(product)
+        #print(product)
     return product  
 
 def cpluscplusMatrixOBC(n, j):
@@ -150,9 +151,18 @@ def ccplusMatrixOBC(n, j):
         product = np.kron(product, operators[index])
     return product  
 
-def hTerm(n,j):
+def hTerm(n):
     operator = np.eye(2**n)
-    operator[2**(j+1) - 1][2**(j+1) - 1] = -1
+    count = fermionWeights(n)
+    print(count)
+    for index in range(2**n):
+        term = index
+        sum = 0
+        for item in count:
+            sum += int(term/item)
+            term = term % item
+        operator[index][index] = sum    
+        
     return operator
 
 #print(hTerm(4,3))
@@ -160,10 +170,8 @@ def hTerm(n,j):
 def HOBC25(n):
     H = np.zeros(2**n)
     for index in range(0,n-1):
-        H = H + Jplus[index]*(cpluscMatrixOBC(n,index) - ccplusMatrixOBC(n,index)) 
-        + Jminus[index]*(cpluscplusMatrixOBC(n,index) - ccMatrixOBC(n,index))
-        + h*hTerm(n, index)
-    H = -1*H + h*hTerm(n,n-1)
+        H = H + Jplus[index]*(cpluscMatrixOBC(n,index) - ccplusMatrixOBC(n,index)) + Jplus[index]*(cpluscplusMatrixOBC(n,index) - ccMatrixOBC(n,index))
+    H = -1*H + h*hTerm(n)
     return H
 
 """def HPBC25(n):
@@ -185,15 +193,17 @@ def parityClass(k):
         if int(term/(weights[index])) != 0:
             sum += 1
         term = term % weights[index]
+
         
     return sum % 2     
-        
+print(HOBC25(2))        
 def HPBC25(n):
-    Heven = np.zeros(2**(n-1))
-    Hodd = np.zeros(2**(n-1))
+    H = HOBC(n)
+print(hTerm(4))    
     
     
-print(parityClass(6))    
+    
+
     
     
        
