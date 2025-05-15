@@ -27,7 +27,7 @@ start = time.time()
 #Following lines make plots look a little more Latex-like
 #mpl.rcParams['mathtext.fontstyle'] = 'cm' 
 mpl.rcParams['font.family'] = 'serif' # or 'sans-serif' or 'monospace'
-mpl.rcParams['font.serif'] = 'cmr10'
+mpl.rcParams['font.serif'] = 'Times New Roman' #'cmr10'
 mpl.rcParams['font.sans-serif'] = 'cmss10'
 mpl.rcParams['font.monospace'] = 'cmtt10'
 #mpl.rcParams["axes.formatter.use_mathtext"] = True # to fix the minus signs
@@ -183,7 +183,7 @@ def makeList(M, N):
 
     
 J = 1
-deltaJ = 1
+deltaJ = 0.1
 
 h = 0.0
 #g = 0.2
@@ -288,7 +288,7 @@ for string in strings:
     realPart_array = np.reshape(realPart, (int(len(realPart)/2**N), 2**N)).T
     imagPart_array = np.reshape(imagPart, (int(len(realPart)/2**N), 2**N)).T
 # creating an empty canvas
-    fig = plt.figure()
+    fig = plt.figure(figsize=(6.4,4.8))
  
 # defining the axes with the projection
 # as 3D so as to plot 3D graphs
@@ -299,6 +299,7 @@ for string in strings:
     ax.set_xlabel(r'$\gamma/J$')
     ax.set_ylabel("Im(E)/J")
     ax.set_zlabel("Re(E)/J")
+    #ax.zaxis._axinfo['label']['space_factor'] = 0
     #ax.set_title("")
     #ax.set_title("N = " + str(N) + " perturbations: " + string )
 
@@ -316,6 +317,10 @@ for string in strings:
         
         
     #plt.savefig(path +  name + ".png")    
+    #plt.figure(figsize=(6.4,4.8))
+    plt.tight_layout()
+    ax.view_init(20, -75)
+    ax.set_box_aspect([1,1,1])
     plt.show()
 
 
