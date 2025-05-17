@@ -6,7 +6,7 @@ Created on Fri Mar 21 11:54:28 2025
 """
 
 import numpy as np
-
+import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import time
@@ -27,7 +27,7 @@ start = time.time()
 #Following lines make plots look a little more Latex-like
 #mpl.rcParams['mathtext.fontstyle'] = 'cm' 
 mpl.rcParams['font.family'] = 'serif' # or 'sans-serif' or 'monospace'
-mpl.rcParams['font.serif'] = 'Times New Roman' #'cmr10'
+mpl.rcParams['font.serif'] = 'cmr10'
 mpl.rcParams['font.sans-serif'] = 'cmss10'
 mpl.rcParams['font.monospace'] = 'cmtt10'
 #mpl.rcParams["axes.formatter.use_mathtext"] = True # to fix the minus signs
@@ -152,16 +152,16 @@ def find_perturbation(N,site, nonHermitianTerm):
 
 
 
-def findPerturbedHamiltonian(N,J,deltaJ,h,g, periodic, longitudinal_field1, longitudinal_field2,
+def findPerturbedHamiltonian(N,J1,J2,h,g, periodic, longitudinal_field1, longitudinal_field2,
                              transverse_field, nonHermitianTerms ):
     tensor_sum_g = build_g_multiple_tensor(N,periodic,nonHermitianTerms)  
     #tensor_sum_g = build_g_single_tensor(N,periodic,site = 0)
     
-    tensor_sum_J1 = build_J(N,periodic, longitudinal_field1) + build_J(N,periodic, longitudinal_field2)
-    tensor_sum_J2 = build_J(N,periodic, longitudinal_field1) - build_J(N,periodic, longitudinal_field2)
+    tensor_sum_J1 = build_J(N,periodic, longitudinal_field1)
+    tensor_sum_J2 = build_J(N,periodic, longitudinal_field2)
     tensor_sum_h = build_h(N,periodic, transverse_field)
     #print(tensor_sum_g)    
-    H = -J*tensor_sum_J1/4 -deltaJ*tensor_sum_J2/4 - h*tensor_sum_h/2 + g*tensor_sum_g 
+    H = -J1*tensor_sum_J1/4 -J2*tensor_sum_J2/4 - h*tensor_sum_h/2 + g*tensor_sum_g 
     return(H)
 
 def makeList(M, N):
@@ -182,9 +182,8 @@ def makeList(M, N):
 
 
     
-J = 1
-deltaJ = 0.1
-
+J1 = 0.501
+J2 = 0.499
 h = 0.0
 #g = 0.2
 #limit = 10e-4
@@ -260,13 +259,13 @@ strings = makeStrings()
 for string in strings:   
     #print(string)
     nonHermitianTerms = eval(string)
-    #print(nonHermitianTerms)
-    #print(type(nonHermitianTerms))
+    print(nonHermitianTerms)
+    print(type(nonHermitianTerms))
     gamma = []
     realPart = []
     imagPart = []
     for g in np.arange(0,1, 0.01):
-        ham = findPerturbedHamiltonian(N,J,deltaJ,h,g, periodic, 
+        ham = findPerturbedHamiltonian(N,J1,J2,h,g, periodic, 
                                                      longitudinal_field1,longitudinal_field2, transverse_field,
                                                      nonHermitianTerms)
     
@@ -288,7 +287,7 @@ for string in strings:
     realPart_array = np.reshape(realPart, (int(len(realPart)/2**N), 2**N)).T
     imagPart_array = np.reshape(imagPart, (int(len(realPart)/2**N), 2**N)).T
 # creating an empty canvas
-    fig = plt.figure(figsize=(6.4,4.8))
+    fig = plt.figure()
  
 # defining the axes with the projection
 # as 3D so as to plot 3D graphs
@@ -296,17 +295,15 @@ for string in strings:
 
 # plotting a 3D line graph with X-coordinate,
 # Y-coordinate and Z-coordinate respectively
-    ax.set_xlabel(r'$\gamma/J$')
-    ax.set_ylabel("Im(E)/J")
-    ax.set_zlabel("Re(E)/J")
-    #ax.zaxis._axinfo['label']['space_factor'] = 0
-    #ax.set_title("")
-    #ax.set_title("N = " + str(N) + " perturbations: " + string )
+    ax.set_xlabel("Gamma")
+    ax.set_ylabel("Imaginary part")
+    ax.set_zlabel("Real Part")
+    ax.set_title("N = " + str(N) + " perturbations: " + string )
 
     for i in range(0,2**N):
         colors = np.where(imagPart_array[i,:] == 0,  'blue', 'red')
-        ax.scatter3D(gamma_array[i,:], imagPart_array[i,:], realPart_array[i,:], marker = ".", c = colors, s = 0.8 )
-    path = "C:/Users/dabuch/.spyder-py3/research/Heisenberg/PBC/isotropic" + str(N) +"spins/"
+        ax.scatter3D(gamma_array[i,:], imagPart_array[i,:], realPart_array[i,:], marker = ".", c = colors, s = 0.2 )
+    path = "C:/Users/dabuch/.spyder-py3/research/Heisenberg/OBC/x501y499for" + str(N) +"spins/"
     
     
     name = ""
@@ -316,11 +313,7 @@ for string in strings:
             
         
         
-    #plt.savefig(path +  name + ".png")    
-    #plt.figure(figsize=(6.4,4.8))
-    plt.tight_layout()
-    ax.view_init(20, -75)
-    ax.set_box_aspect([1,1,1])
+    plt.savefig(path +  name + ".png")    
     plt.show()
 
 
