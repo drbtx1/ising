@@ -201,6 +201,7 @@ q = 1
 nonHermitianTerms = {p: splus, q: -1*sminus}
 realPart = []
 imagPart = []
+purelyReal = []
 for idx in range(len(gList)):
     g = gList[idx]
     ham = findPerturbedHamiltonian(N,J,deltaJ,h,g, periodic, 
@@ -209,22 +210,32 @@ for idx in range(len(gList)):
     ev, vecs = np.linalg.eig(ham)
     tempReal = []
     tempImag = []
+    tempPurelyReal = []
     for e in ev:
-        tempReal.append(np.real(e))
-        tempImag.append(np.imag(e))
+        if abs(np.imag(e)) < 10e-5:
+            tempImag.append(np.nan)
+            tempReal.append(np.nan) 
+            tempPurelyReal.append(np.real(e))
+        
+        
+        else:           
+            tempImag.append(np.imag(e))
+            tempReal.append(np.real(e))
+            tempPurelyReal.append(np.nan)
     realPart.append(tempReal)
     imagPart.append(tempImag)
+    purelyReal.append(tempPurelyReal)
         
 
 realPartArray = np.array(realPart)
 imagPartArray = np.array(imagPart)
-
-purelyrealArray = realPartArray
+purelyRealArray = np.array(purelyReal) 
     
 for n in range(0, 2**N):
     #plt.plot(gList, realPartArray[:,n])
-    plt.scatter(gList, realPartArray[:,n],marker = ".", color = "blue", s=0.01 )    
-    #plt.scatter(gList, imagPartArray[:,n],marker = ".", color = "red", s=0.01 )
+    #plt.scatter(gList, purelyRealArray[:,n],marker = ".", color = "blue", s=0.03 )    
+    #plt.scatter(gList, realPartArray[:,n],marker = ".", color = "red", s=0.03 )
+    plt.scatter(gList, imagPartArray[:,n],marker = ".", color = "red", s=0.03 )
 #print(gList)    
             
   
@@ -238,7 +249,7 @@ for n in range(0, 2**N):
     
     
 
-plt.title("PT Threshold")
+#plt.title("PT Threshold")
 #plt.legend()
 #plt.xscale("log")
 plt.xlabel(r'$\gamma_{PT}/J/$')
